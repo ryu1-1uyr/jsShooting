@@ -1,10 +1,14 @@
-// - global -------------------------------------------------------------------
 let screenCanvas, info;
 let run = true;
 let fps = 1000 / 30;
 let mouse = new Point();
 let ctx;
-let CHARA_COLOR = 'rgba(0, 0, 255, 0.75)';
+let fire = false;
+
+// - const --------------------------------------------------------------------
+const CHARA_COLOR = 'rgba(0, 0, 255, 0.75)';
+const CHARA_SHOT_COLOR = 'rgba(0, 255, 0, 0.75)';
+const CHARA_SHOT_MAX_COUNT = 10;
 
 // - main ---------------------------------------------------------------------
 window.onload = function(){
@@ -13,6 +17,7 @@ window.onload = function(){
     screenCanvas = document.getElementById('screen');
     screenCanvas.width = 256;
     screenCanvas.height = 256;
+    
 
     // 2dコンテキスト
     ctx = screenCanvas.getContext('2d');
@@ -25,7 +30,7 @@ window.onload = function(){
     info = document.getElementById('info');
 
     // 自機初期化
-    var chara = new Character();
+    let chara = new Character();
     chara.init(10);
 
     // レンダリング処理を呼び出す
@@ -51,6 +56,9 @@ window.onload = function(){
 
         // 自機を描く
         ctx.fill();
+        screenCanvas.addEventListener('mousemove', mouseMove, true);
+        screenCanvas.addEventListener('mousedown', mouseDown, true);
+        window.addEventListener('keydown', keyDown, true);
 
         // フラグにより再帰呼び出し
         if(run){setTimeout(arguments.callee, fps);}
@@ -62,6 +70,11 @@ function mouseMove(event){
     // マウスカーソル座標の更新
     mouse.x = event.clientX - screenCanvas.offsetLeft;
     mouse.y = event.clientY - screenCanvas.offsetTop;
+}
+
+function mouseDown(event){
+    // フラグを立てる
+    fire = true;
 }
 
 function keyDown(event){
