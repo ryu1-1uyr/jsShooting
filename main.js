@@ -5,6 +5,7 @@ let mouse = new Point();
 let ctx;
 let fire = false;
 
+
 // - const --------------------------------------------------------------------
 const CHARA_COLOR = 'rgba(0, 0, 255, 0.75)';
 const CHARA_SHOT_COLOR = 'rgba(0, 255, 0, 0.75)';
@@ -12,58 +13,98 @@ const CHARA_SHOT_MAX_COUNT = 10;
 
 // - main ---------------------------------------------------------------------
 window.onload = function(){
+    let i;
 
-    // スクリーンの初期化
+    // スクリーン読み込み。大きさの固定
     screenCanvas = document.getElementById('screen');
     screenCanvas.width = 256;
     screenCanvas.height = 256;
-    
 
-    // 2dコンテキスト
     ctx = screenCanvas.getContext('2d');
 
-    // イベントの登録
+    // マウスの動き取得
     screenCanvas.addEventListener('mousemove', mouseMove, true);
+    screenCanvas.addEventListener('mousedown', mouseDown, true);
     window.addEventListener('keydown', keyDown, true);
 
-    // その他のエレメント関連
+    //
     info = document.getElementById('info');
 
-    // 自機初期化
+    // characterjsからひっぱってきてる
     let chara = new Character();
     chara.init(10);
 
-    // レンダリング処理を呼び出す
+    // たまの初期化
+    let charaShot = new Array(CHARA_SHOT_MAX_COUNT);
+    for(i = 0; i < CHARA_SHOT_MAX_COUNT; i++){
+        charaShot[i] = new CharacterShot();
+    }
+
+    // 描画周りのあれこれ
     (function(){
-        // HTMLを更新
+
         info.innerHTML = mouse.x + ' : ' + mouse.y;
 
-        // screenクリア
+
         ctx.clearRect(0, 0, screenCanvas.width, screenCanvas.height);
 
-        // パスの設定を開始
+
         ctx.beginPath();
 
-        // 自機の位置を設定
+        // マウスの位置とあわせるよ
         chara.position.x = mouse.x;
         chara.position.y = mouse.y;
 
-        // 自機を描くパスを設定
+
         ctx.arc(chara.position.x, chara.position.y, chara.size, 0, Math.PI * 2, false);
 
-        // 自機の色を設定する
+
         ctx.fillStyle = CHARA_COLOR;
 
-        // 自機を描く
-        ctx.fill();
-        screenCanvas.addEventListener('mousemove', mouseMove, true);
-        screenCanvas.addEventListener('mousedown', mouseDown, true);
-        window.addEventListener('keydown', keyDown, true);
 
-        // フラグにより再帰呼び出し
+        ctx.fill();
+
+        // たまを打ち出す周りの処理
+        if(fire){
+
+            for(i = 0; i < CHARA_SHOT_MAX_COUNT; i++){
+
+                if(!charaShot[i].alive){
+
+                    charaShot[i].set(chara.position, 3, 5);
+
+                    break;
+                }
+            }
+            // フラグたてとく
+            fire = false;
+        }
+
+        ctx.beginPath();
+
+        for(i = 0; i < CHARA_SHOT_MAX_COUNT; i++){
+            if(charaShot[i].alive){
+                charaShot[i].move();
+
+                ctx.arc(
+                    charaShot[i].position.x,
+                    charaShot[i].position.y,
+                    charaShot[i].size,
+                    0, Math.PI * 2, false
+                );
+
+                ctx.closePath();
+            }
+        }
+
+        ctx.fillStyle = CHARA_SHOT_COLOR;
+
+        ctx.fill();
+
         if(run){setTimeout(arguments.callee, fps);}
     })();
 };
+
 
 // - event --------------------------------------------------------------------
 function mouseMove(event){

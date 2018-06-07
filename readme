@@ -1,6 +1,8 @@
 javascriptでシューティングゲームを作るサンプル
 
 function多めで書いていきます(thisの挙動にまだ慣れていない)
+https://qiita.com/doxas/items/9debec7e1f0c19bc8daa
+このページに準拠しながら、ちょいちょい書き換えつつ実装
 
 6/6 作成開始
 6/7 character.js の追加
